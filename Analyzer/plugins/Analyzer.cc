@@ -618,8 +618,9 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     float digluino_pt;
     if (gluino4vec.size() == 2)  digluino_pt = (gluino4vec[0] + gluino4vec[1]).Pt();
     else digluino_pt = -999;//if (MG_FILENAME_)
-    double *mg_weightX = mg_scale->GetX();
-    double *mg_weightY = mg_scale->GetY();
+    int NPoints = mg_scale->GetN();
+    double mg_weightX[NPoints] = mg_scale->GetX();
+    double mg_weightY[NPoints] = mg_scale->GetY();
     float pT_LowerEdge = 0;
     for (int j = 0; j < mg_scale->GetN(); j++){
       float pT_UpperEdge = mg_weightX[j];
