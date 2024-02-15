@@ -266,7 +266,6 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   effHltMu50PostS = new TEfficiency("eff4", "PostS Efficiency HLT Mu 50 vs betagamma", 100, 0, 5);
   */
 
-  mg_scale = nullptr;
   if (MG_FILENAME_!=""){
     TFile* ratioFile = TFile::Open(MG_FILENAME_.c_str());
     mg_scale = (TGraphAsymmErrors*) ratioFile->Get("mg_py_stat");
@@ -615,7 +614,7 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
   } //loop over all gen particles
 
-  if(mg_scale!=nullptr){
+  if(MG_FILENAME_!=""){
     float digluino_pt;
     if (gluino4vec.size() == 2)  digluino_pt = (gluino4vec[0] + gluino4vec[1]).Pt();
     else digluino_pt = -999;//if (MG_FILENAME_)
