@@ -472,5 +472,13 @@ private:
   TEfficiency* effl1Mu22or25PostS;
   TEfficiency* effl1LastMuPostS;
   TEfficiency* effHltMu50PostS;
+
+  //==========================
+  //    Lacey
+  //==========================
+  TGraphAsymmErrors *mg_scale;
+  std::string MG_FILENAME;
+  float mg_weight;
+
 };
 #endif
