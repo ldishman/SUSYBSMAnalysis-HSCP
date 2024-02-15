@@ -267,7 +267,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   */
 
   mg_scale = nullptr;
-  if (MG_FILENAME_){
+  if (MG_FILENAME_!=""){
     TFile* ratioFile = TFile::Open(MG_FILENAME_);
     mg_scale = (TGraphAsymmErrors*) ratioFile->Get("mg_py_stat");
     mg_weight = 1;
@@ -590,7 +590,6 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::vector<int> gParticleMotherId;
   std::vector<int> gParticleMotherIndex;
   //MG weight stuff
-  vector<reco::GenParticle> genColl;
   vector<TLorentzVector> gluino4vec;
 
 
