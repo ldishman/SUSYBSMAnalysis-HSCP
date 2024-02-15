@@ -35,6 +35,7 @@
 #include "TTree.h"
 #include "TProfile.h"
 #include "TLorentzVector.h"
+#include "TGraphAsymmErrors.h"
 //#include "TCanvas.h"
 
 // ~~~~~~~~~ CMSSW include files ~~~~~~~~~
