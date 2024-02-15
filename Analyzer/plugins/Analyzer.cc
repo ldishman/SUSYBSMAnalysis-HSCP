@@ -268,7 +268,7 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
 
   mg_scale = nullptr;
   if (MG_FILENAME_){
-    TFile* ratioFile = TFile::Open(MG_FILENAME);
+    TFile* ratioFile = TFile::Open(MG_FILENAME_);
     mg_scale = (TGraphAsymmErrors*) ratioFile->Get("mg_py_stat");
     mg_weight = 1;
   }

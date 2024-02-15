@@ -477,7 +477,7 @@ private:
   //    Lacey
   //==========================
   TGraphAsymmErrors *mg_scale;
-  std::string MG_FILENAME;
+  std::string MG_FILENAME_;
   float mg_weight;
 
 };
