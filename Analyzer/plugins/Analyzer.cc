@@ -266,11 +266,13 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   effHltMu50PostS = new TEfficiency("eff4", "PostS Efficiency HLT Mu 50 vs betagamma", 100, 0, 5);
   */
 
+  // LACEY
+
   if (MG_FILENAME_!=""){
     TFile* ratioFile = TFile::Open(MG_FILENAME_.c_str());
     mg_scale = (TGraphAsymmErrors*) ratioFile->Get("mg_py_stat");
-    mg_weight = 1;
   }
+    mg_weight = 1;
 
 }
 
@@ -613,6 +615,8 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       gluino4vec.push_back(tvec);
     }
   } //loop over all gen particles
+
+  // LACEY
 
   if(MG_FILENAME_!=""){
     float digluino_pt;
@@ -7257,7 +7261,7 @@ void Analyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked("GiSysParamOne",0.00103)->setComment("Parameter B from above linear fit");
   desc.addUntracked("GiSysParamTwo",0.0775)->setComment("Parameter B from above linear fit");
 
-  desc.addUntracked("MG_FILENAME","")->setComment("ROOT file for MG/Pythia weights");
+  desc.addUntracked<std::string>("MG_FILENAME","")->setComment("ROOT file for MG/Pythia weights"); // LACEY
 
  descriptions.add("HSCParticleAnalyzer",desc);
 }
