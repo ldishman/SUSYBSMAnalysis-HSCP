@@ -35,6 +35,7 @@
 #include "TTree.h"
 #include "TProfile.h"
 #include "TLorentzVector.h"
+#include "TGraphAsymmErrors.h"
 //#include "TCanvas.h"
 
 // ~~~~~~~~~ CMSSW include files ~~~~~~~~~
@@ -472,5 +473,12 @@ private:
   TEfficiency* effl1Mu22or25PostS;
   TEfficiency* effl1LastMuPostS;
   TEfficiency* effHltMu50PostS;
+
+  //==========================
+  //    Lacey
+  //==========================
+  TGraphAsymmErrors *mg_scale;
+  std::string MG_FILENAME_;
+  std::vector<float> mg_weight;
 };
 #endif

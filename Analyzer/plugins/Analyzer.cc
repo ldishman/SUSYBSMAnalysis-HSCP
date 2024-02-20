@@ -223,7 +223,8 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
       debug_(iConfig.getUntrackedParameter<int>("DebugLevel")),
       hasMCMatch_(iConfig.getUntrackedParameter<bool>("HasMCMatch")),
       calcSyst_(iConfig.getUntrackedParameter<bool>("CalcSystematics")),
-      calibrateTOF_(iConfig.getUntrackedParameter<bool>("CalibrateTOF"))
+      calibrateTOF_(iConfig.getUntrackedParameter<bool>("CalibrateTOF")),
+      MG_FILENAME_(iConfig.getUntrackedParameter<string>("MG_FILENAME")) // LACEY
 
  {
 //now do what ever initialization is needed
@@ -264,6 +265,12 @@ Analyzer::Analyzer(const edm::ParameterSet& iConfig)
   effl1LastMuPostS = new TEfficiency("eff3", "PostS Efficiency Last L1 see mu50 vs betagamma", 100, 0, 5);
   effHltMu50PostS = new TEfficiency("eff4", "PostS Efficiency HLT Mu 50 vs betagamma", 100, 0, 5);
   */
+
+  // LACEY
+  if (MG_FILENAME_!=""){
+    TFile* ratioFile = TFile::Open(MG_FILENAME_.c_str());
+    mg_scale = (TGraphAsymmErrors*) ratioFile->Get("mg_py_stat");
+  }
 }
 
 Analyzer::~Analyzer() = default;
@@ -580,6 +587,8 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::vector<float> gParticleProdVertexZ;
   std::vector<int> gParticleMotherId;
   std::vector<int> gParticleMotherIndex;
+  //LACEY
+  std::vector<TLorentzVector> gluino4vec;
 
   std::vector<const reco::Candidate*> prunedV;//Allows easier comparison for mother finding
 
@@ -596,7 +605,37 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
        ) {
         prunedV.push_back(&genColl[i]);
       }
+    // LACEY
+    if (abs(genColl[i].pdgId())==1000021 && genColl[i].status()==62){
+      TLorentzVector tvec;
+      tvec.SetPtEtaPhiM(genColl[i].pt(), genColl[i].eta(), genColl[i].phi(), genColl[i].mass());
+      gluino4vec.push_back(tvec);
+    }
   } //loop over all gen particles
+
+  // LACEY
+  if(MG_FILENAME_!=""){
+    mg_weight.clear();
+    float digluino_pt;
+    if (gluino4vec.size() == 2)  digluino_pt = (gluino4vec[0] + gluino4vec[1]).Pt();
+    else digluino_pt = -999;//if (MG_FILENAME_)
+    float pT_LowerEdge = 0; //float matched_pt = -1;
+    for (int j = 0; j < mg_scale->GetN(); j++){
+      float pT_UpperEdge = mg_scale->GetX()[j];
+      float weight = mg_scale->GetY()[j];
+      float shift_up   = mg_scale->GetEYhigh()[j]; 
+      float shift_down = mg_scale->GetEYlow()[j];
+      if (digluino_pt > pT_LowerEdge && digluino_pt <= pT_UpperEdge){
+        mg_weight[0] = weight;
+        mg_weight[1] = weight+shift_up;
+        mg_weight[2] = weight-shift_down;
+        //matched_pt = pT_UpperEdge;
+        break;
+      }
+      pT_LowerEdge = pT_UpperEdge;
+    }
+    //std::cout << ">> USING RADIATION WEIGHT[nb of gluinos="<<gluino4vec.size() <<"][digluino pT="<<digluino_pt<<",pt upperbin="<<matched_pt<<"]: "<< mg_weight <<std::endl;
+  } // end if LACEY
 
   //Look for mother particle and Fill gen variables
   for(unsigned int i = 0; i < prunedV.size(); i++) {
@@ -1134,6 +1173,9 @@ void Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     float muonIdSFsDown = (!isData) ? muonIdSFsForTrackEta(trigObjP4s[closestTrigObjIndex].Eta(), -1) : 1.;
     float muonTriggerSFsDown = (!isData) ? muonTriggerSFsForTrackEta(trigObjP4s[closestTrigObjIndex].Eta(), -1) : 1.;
     tuple->NumEvents->Fill(5., eventWeight_ * PUSystFactor_[1] * triggerSystFactorDown * muonRecoSFsDown * muonIdSFsDown * muonTriggerSFsDown * triggerSystFactorDown);
+    tuple->NumEvents->Fill(6., eventWeight_ * mg_weight[0]);//LACEY
+    tuple->NumEvents->Fill(7., eventWeight_ * mg_weight[1]);//LACEY
+    tuple->NumEvents->Fill(8., eventWeight_ * mg_weight[2]);//LACEY
   } else {
     if (debug_ > 2 ) LogPrint(MOD) << " > This event did not pass the needed triggers";
     if (createAndExitGitemplates_) {
@@ -7225,6 +7267,8 @@ void Analyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   desc.addUntracked("GiSysParamOne",0.00103)->setComment("Parameter B from above linear fit");
   desc.addUntracked("GiSysParamTwo",0.0775)->setComment("Parameter B from above linear fit");
+
+  desc.addUntracked<std::string>("MG_FILENAME","")->setComment("ROOT file for MG/Pythia weights"); // LACEY
 
  descriptions.add("HSCParticleAnalyzer",desc);
 }

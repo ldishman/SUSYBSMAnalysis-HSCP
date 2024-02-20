@@ -439,12 +439,15 @@ void TupleMaker::initializeTuple(Tuple *&tuple,
   tuple->XSection = dir.make<TProfile>("XSection", ";XSection", 1, 0, 1);
   tuple->EventWeight = dir.make<TH1F>("EventWeight", ";EventWeight;Events / 0.02", 25, 0.75, 1.25);
 
-  tuple->NumEvents = dir.make<TH1F>("NumEvents", ";;Number of events / category", 5, 0.5, 5.5);
+  tuple->NumEvents = dir.make<TH1F>("NumEvents", ";;Number of events / category", 8, 0.5, 8.5);
   tuple->NumEvents->GetXaxis()->SetBinLabel(1,"All events");
   tuple->NumEvents->GetXaxis()->SetBinLabel(2,"After trigger");
   tuple->NumEvents->GetXaxis()->SetBinLabel(3,"After HLT obj matching");
   tuple->NumEvents->GetXaxis()->SetBinLabel(4,"Events w/ event weights");
   tuple->NumEvents->GetXaxis()->SetBinLabel(5,"Events w/ DOWN systs on weights");
+  tuple->NumEvents->GetXaxis()->SetBinLabel(6,"Events w/ event weights * radiation"); //LACEY (added bin number 6)
+  tuple->NumEvents->GetXaxis()->SetBinLabel(6,"Events w/ event weights * rad. Up");   //LACEY (added bin number 7)
+  tuple->NumEvents->GetXaxis()->SetBinLabel(6,"Events w/ event weights * rad. Down"); //LACEY (added bin number 8)
 
 
   tuple->dRMinHLTMuon = dir.make<TH1F>("dRMinHLTMuon", ";#Delta R_{min,muReco,HLT};Events / 0.04",100,0.,4.);
